@@ -10,7 +10,9 @@ var PORT = 8080;
 http.createServer(
 	function(req , res){
 		console.log('req url = ' + req.url);
-		if(req.url.startsWith('/img') || req.url.startsWith('/res')){
+		if(req.url.startsWith('/html')){
+			handleHtml(req , res);
+		}else if(req.url.startsWith('/img') || req.url.startsWith('/res')){
 			handleRes(req , res);
 		}else{
 			res.setHeader('Content-Type',"text/html;charset=utf-8");
@@ -32,4 +34,17 @@ function handleRes(req , res){
 		res.setHeader('Content-Type' , mime.getType(req.url));
 		res.end(data);
 	});	
+}
+
+function handleHtml(req , res){
+	fs.readFile(path.join(__dirname , req.url) ,'utf8', function(err , data){
+		if(err){
+			res.http = 404;
+			res.end('404 not found!');
+			return;
+		}
+		
+		res.setHeader('Content-Type' , mime.getType(req.url));
+		res.end(data);
+	});
 }
