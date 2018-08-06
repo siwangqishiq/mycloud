@@ -3,7 +3,7 @@ var mime = require('mime');
 var fs = require('fs');
 var path = require('path');
 
-var PORT = 3389;
+var PORT = 8080;
 
 //console.log('xxx.png = '+ mime.getType('xxx.png'));
 
