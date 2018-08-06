@@ -1,0 +1,19 @@
+{
+  "name": "siwangqishiq",
+  "version": "1.0.0",
+  "description": "hahaha",
+  "main": "hello.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/siwangqishiq/mycloud.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/siwangqishiq/mycloud/issues"
+  },
+  "homepage": "https://github.com/siwangqishiq/mycloud#readme"
+}
