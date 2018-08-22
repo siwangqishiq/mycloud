@@ -5,7 +5,7 @@ var path = require('path');
 const URL = require('url');
 
 //var PORT = 8080;
-var PORT = 8080;
+var PORT = 80;
 
 //console.log('xxx.png = '+ mime.getType('xxx.png'));
 
