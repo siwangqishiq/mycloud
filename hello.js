@@ -17,19 +17,12 @@ http.createServer(
 			handleHtml(path , req , res);
 		}else if(path.startsWith('/img') || path.startsWith('/res')){
 			handleRes(path , req , res);
+		}else if(path.startsWith('upload') && req.method === 'post'){
+			uploadFile(req , res);
 		}else{
 			res.setHeader('Content-Type',"text/html;charset=utf-8");
 			res.end('404！！！！！！木哈哈哈哈');
 		}
-		// switch(path){
-		// 	case '/html':
-		// 		break;
-		// 	case '/img':
-		// 	case '/res':
-		// 		break;
-		// 	default:
-		// 		break;
-		// }
 	}
 ).listen(PORT , function(){
 	console.log('server is running on ' + PORT + ' ...');
@@ -60,3 +53,18 @@ function handleHtml(url , req , res){
 		res.end(data);
 	});
 }
+
+function uploadFile(req , res){
+	var data = [];
+	req.on('data' , function(chunk){
+		data.push(chunk);
+	});
+	req.on('end' , function(){
+		var raw = Buffer.concat(data);
+		console.log();
+
+		res.setHeader('Content-Type' , 'plain/html');
+		res.end('upload complete');
+	});
+}
+

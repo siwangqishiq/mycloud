@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>主页</title>
+</head>
+ 
+<body>
+        <canvas id="myCanvas" width="1000" height="480">
+        </canvas>
+            
+            <script>
+            var game_status = 1;//1 = 正常  2= gameover
+            var game_width = 800;
+            var game_height = 480;
+            var game_banner = 200;
+            var cube = 10;
+            var map_width = 80;
+            var map_height = 48;
+            var is_running = false;
+            var loop_id = 0;
+            var time = 0;
+            var score = 0;
+            var snake_x;
+            var snake_y;
+            var snake_body_count = 3;
+            var snake_array = new Array();
+            var snake_dir = 4;//1 = up ,  2 = down ,3 = left ,4 = right
+            var apple_x;
+            var apple_y;
+            function create_snake(x , y){
+                var obj = new Object()
+                obj.x = x;
+                obj.y = y;
+                return obj;
+            }
+            function gen_random(start, end){
+                return Math.floor(Math.random() * (end - start) + start);
+            }
+            function check_position_ishit_snake(x , y){
+                var ret = false;
+                for(var i = 0;i<snake_body_count;i++){
+                    if(snake_array[i].x == x && snake_array[i].y == y)
+                        return true;
+                }//end for i
+                return false;
+            }
+            function create_apple(){
+                var x,y;
+                do{
+                    x = gen_random(0 , map_width - 1);
+                    y = gen_random(0 , map_height - 1);
+                }while(check_position_ishit_snake(x , y))
+                
+                apple_x = x;
+                apple_y = y;
+            }
+            function game_init(){
+                is_running = true;
+                game_status = 1;
+                time = 0;
+                score = 0;
+                
+                snake_dir = 4;
+                
+                snake_x = 10;
+                snake_y = 20;
+                snake_body_count = 4;
+                snake_array[0] = create_snake(snake_x , snake_y);
+                snake_array[1] = create_snake(snake_x - 1 , snake_y);
+                snake_array[2] = create_snake(snake_x - 2 , snake_y);
+                snake_array[3] = create_snake(snake_x - 3 , snake_y);
+                //snake_reverse();
+                
+                //gen apple position
+                create_apple();
+                
+                loop_id = setInterval(function(){
+                    game_update();
+                }, 100);
+            }
+            function game_update(){
+                ctx.clearRect(0, 0, game_width + game_banner, game_height);
+                //game logic
+                render_bg(ctx);//
+                
+                switch(game_status){
+                    case 1://game normal
+                        time++;
+                        snake_move();
+                        render_snake(ctx);
+                        render_apple(ctx);
+                    break;
+                    case 2://game over
+                        render_gameover(ctx);
+                    break;
+                }//end switch
+                    
+                render_text(ctx);
+            }
+            function render_gameover(ctx){
+                ctx.textAlign = 'center';
+                ctx.fillStyle="#ff00ff";
+                ctx.font="60px Verdana";
+                ctx.fillText("G A M E   O V E R!!!", game_width / 2,200);
+                
+                ctx.fillStyle="#ffffff";
+                ctx.font="20px Verdana";
+                ctx.fillText("按下空格键重新开始", game_width / 2,300);
+                //ctx.fillText("得分:" + score, game_width + 10, 90);
+            }
+            function render_apple(ctx){
+                ctx.fillStyle="#ff0000";
+                ctx.fillRect(apple_x * cube,apple_y * cube, cube, cube);
+            }
+            function render_snake(ctx){
+                ctx.fillStyle="#00ff00";
+                
+                //console.log("i = "+snake_array[i].x);
+                for(var i = 0;i<snake_body_count;i++){
+                    //console.log(i+ " = "+snake_array[i].x);
+                    ctx.fillRect(snake_array[i].x * cube,snake_array[i].y * cube, cube, cube);
+                }//end for i
+            }
+            function snake_reverse(){	
+                var cpySnake = new Array();
+                for(var i = 0;i<snake_body_count;i++){
+                    cpySnake[i] = snake_array[i];
+                }//end for i
+                
+                for(var i = 0;i<snake_body_count;i++){		
+                    if(i == 0){//is head
+                        snake_array[i] = create_snake(snake_x , snake_y);
+                    }else{			
+                        snake_array[i]= cpySnake[i - 1];
+                    }
+                    //console.log(snake_array[i]);
+                }//end for i
+            }
+            function snake_eat_apple(){
+                score += 5;
+                snake_x = apple_x;
+                snake_y = apple_y;
+                
+                var cpySnake = new Array();
+                for(var i = 0;i<snake_body_count;i++){
+                    cpySnake[i] = snake_array[i];
+                }//end for i
+                
+                snake_body_count++;
+                for(var i = 0;i<snake_body_count;i++){		
+                    if(i == 0){//is head
+                        snake_array[0] = create_snake(snake_x , snake_y);
+                    }else{			
+                        snake_array[i]= cpySnake[i - 1];
+                    }
+                }//end for i
+                
+                create_apple();
+            }
+            function snake_hit(){//game over
+                game_status = 2;
+                game_end();
+                render_gameover(ctx);
+            }
+            function snake_move(){
+                switch(snake_dir){
+                    case 1://up
+                        snake_y -= 1;
+                        if(snake_y < 0){
+                            snake_y = map_height - 1;
+                        }
+                    break;
+                    case 2://down
+                        snake_y += 1;
+                        if(snake_y >= map_height){
+                            snake_y = 0;
+                        }
+                    break;
+                    case 3://left
+                        snake_x -= 1;
+                        if(snake_x < 0){
+                            snake_x = map_width - 1;
+                        }
+                    break;
+                    case 4://right
+                        snake_x += 1;
+                        if(snake_x >= map_width){
+                            snake_x = 0;
+                        }
+                    break;
+                }//end switch
+                snake_reverse();
+                
+                // is head hit body?
+                for(var i = 1;i<snake_body_count;i++){
+                    if(snake_array[i].x == snake_x && snake_array[i].y == snake_y){
+                        snake_hit();
+                        return;
+                    }
+                }//end for i
+                
+                //head is hit apple?
+                if(snake_x == apple_x && snake_y == apple_y){
+                    snake_eat_apple();
+                    return;
+                }
+            }
+            function dirChange(dir){
+                if(snake_dir == 1 && dir == 2 || snake_dir == 2 && dir == 1
+                    || snake_dir == 3 && dir == 4 || snake_dir == 4 && dir == 3 ){//方向冲突 不处理
+                    return;
+                }
+                snake_dir = dir;
+            }
+            function render_bg(ctx){
+                ctx.fillStyle="#000000";
+                ctx.fillRect(0,0, game_width, game_height);
+            }
+            function render_text(ctx){
+                ctx.fillStyle="#ff0000";
+                ctx.font="30px Verdana";
+                ctx.textAlign = 'left';
+                ctx.fillText("时间:" + time, game_width + 10,40);
+                ctx.fillText("得分:" + score, game_width + 10, 90);
+            }
+            function game_end(){
+                if(is_running){
+                    clearInterval(loop_id);
+                    is_running = false;
+                }	
+            }
+            var c=document.getElementById("myCanvas");
+            var ctx=c.getContext("2d");
+            ctx.textAlign = 'center';
+            game_init();
+            document.onkeyup = function keyUp(e) {
+                switch(e.keyCode){
+                    case 27://esc key
+                        game_end();
+                        break;
+                    case 32://space key
+                        game_init();
+                        break;
+                    case 38://up
+                        dirChange(1);
+                        break;
+                    case 40://down
+                        dirChange(2);
+                        break;
+                    case 37://left
+                        dirChange(3);
+                        break;
+                    case 39://right
+                        dirChange(4);
+                        break;
+                    
+                    default:
+                    //alert(e.keyCode);
+                    break;
+                }//end switch
+                
+            };
+            </script>
+    
+</body>
+</html>
