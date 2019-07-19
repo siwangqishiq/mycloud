@@ -1,0 +1,11 @@
+chmod 400 panyi1.pem
+
+ssh -i panyi1.pem root@39.106.217.187
+
+
+
+
+
+
+
+
